@@ -1,6 +1,8 @@
 # kasscom
 
-kasscom is a package for calling the kass-api's most important endpoint "payment".
+kasscom is a package for calling the kass-api's most important endpoint "payment". 
+
+See the api for more details: https://kass.github.io/api
 
 ## Usage
 
