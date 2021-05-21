@@ -6,6 +6,7 @@ kasscom is a package for calling the kass-api's most important endpoint "payment
 
 ```golang
 import "github.com/Skjaldbaka17/kasscomm"
+
 var base_Request Request = Request{
 	Amount:      2199,
 	Description: "Kass bolur",
@@ -17,8 +18,11 @@ var base_Request Request = Request{
 	Notify_Url:  "https://example.com/api/callback",
 }
 
-kasscomm.SetDev()
-kasscomm.SetAuthToken(test_auth_token)
+var my_auth_token string = "MY_AUTH_TOKEN"
+
+kasscomm.SetDev() //for test env
+//kasscomm.SetProd() //for real env
+kasscomm.SetAuthToken(my_auth_token)
 resp, err := InitiatePayment(&base_Request)
 ```
 
