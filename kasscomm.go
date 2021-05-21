@@ -54,8 +54,8 @@ func SetDev() {
 	base_url = test_path
 }
 
-// SetProduction sets the environment to production, i.e. use the real api
-func SetProduction() {
+// SetProd sets the environment to production, i.e. use the real api
+func SetProd() {
 	isProd = true
 	base_url = real_path
 }
