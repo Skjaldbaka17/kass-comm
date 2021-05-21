@@ -9,8 +9,8 @@ import (
 	"net/http"
 )
 
-var authToken string
-var isProd = false //Defaults to false, i.e. sandbox/test-env
+var auth_token string
+var is_prod = false //Defaults to false, i.e. sandbox/test-env
 
 const real_path, test_path string = "https://api.kass.is/v1/", "https://api.testing.kass.is/v1/"
 
@@ -45,27 +45,27 @@ type Error struct {
 
 // SetAuthToken takes in the authToken-string to be used in the api-calls
 func SetAuthToken(token string) {
-	authToken = token
+	auth_token = token
 }
 
 // SetDev sets the environment to dev, i.e. use sandbox
 func SetDev() {
-	isProd = false
+	is_prod = false
 	base_url = test_path
 }
 
 // SetProd sets the environment to production, i.e. use the real api
 func SetProd() {
-	isProd = true
+	is_prod = true
 	base_url = real_path
 }
 
 func GetAuthToken() string {
-	return authToken
+	return auth_token
 }
 
 func GetIsProd() bool {
-	return isProd
+	return is_prod
 }
 
 /*
@@ -96,7 +96,7 @@ it returns an empty Response and an error.
 func InitiatePayment(request *Request) (Response, error) {
 	//Validate before making the request
 
-	if authToken == "" {
+	if auth_token == "" {
 		return Response{}, errors.New("authToken can not be an empty string")
 	}
 	err := validateInputRequest(request)
@@ -105,19 +105,19 @@ func InitiatePayment(request *Request) (Response, error) {
 	}
 
 	//Encode the data
-	postBody, _ := json.Marshal(request)
+	post_body, _ := json.Marshal(request)
 
 	//Create the request
 	client := &http.Client{}
-	requestBody := bytes.NewBuffer(postBody)
-	req, err := http.NewRequest("POST", base_url+"payments", requestBody)
+	request_body := bytes.NewBuffer(post_body)
+	req, err := http.NewRequest("POST", base_url+"payments", request_body)
 
 	if err != nil {
 		return Response{}, err
 	}
 
 	//Set the authentication token and call the api
-	req.SetBasicAuth(authToken, "")
+	req.SetBasicAuth(auth_token, "")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
@@ -134,13 +134,13 @@ func InitiatePayment(request *Request) (Response, error) {
 	}
 
 	// Decode json into Response struct
-	var jsonResponse Response
-	err = json.Unmarshal(body, &jsonResponse)
+	var json_response Response
+	err = json.Unmarshal(body, &json_response)
 
 	if err != nil {
 		log.Fatalln(err)
 		return Response{}, err
 	}
 
-	return jsonResponse, nil
+	return json_response, nil
 }
