@@ -9,6 +9,13 @@ import (
 	"net/http"
 )
 
+var authToken string
+var isProd = false //Defaults to false, i.e. sandbox/test-env
+
+const real_path, test_path string = "https://api.kass.is/v1/", "https://api.testing.kass.is/v1/"
+
+var base_url string = test_path
+
 //Request is structured according to the json that the kass-api expects
 type Request struct {
 	Amount      int    `json:"amount"`
@@ -36,11 +43,6 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-var authToken string
-var isProd = false //Defaults to false, i.e. sandbox/test-env
-
-const real_path, test_path string = "https://api.kass.is/v1/", "https://api.testing.kass.is/v1/"
-
 // SetAuthToken takes in the authToken-string to be used in the api-calls
 func SetAuthToken(token string) {
 	authToken = token
@@ -49,11 +51,13 @@ func SetAuthToken(token string) {
 // SetDev sets the environment to dev, i.e. use sandbox
 func SetDev() {
 	isProd = false
+	base_url = test_path
 }
 
 // SetProduction sets the environment to production, i.e. use the real api
 func SetProduction() {
 	isProd = true
+	base_url = real_path
 }
 
 func GetAuthToken() string {
@@ -86,45 +90,50 @@ func validateInputRequest(request *Request) error {
 }
 
 /*
-InitiatePayment initiates a payment request through the kass-api
+InitiatePayment initiates a payment request through the kass-api and returns the Reponse. If something fails
+it returns an empty Response and an error.
 */
 func InitiatePayment(request *Request) (Response, error) {
+	//Validate before making the request
+
+	if authToken == "" {
+		return Response{}, errors.New("authToken can not be an empty string")
+	}
 	err := validateInputRequest(request)
 	if err != nil {
 		return Response{}, err
-	}
-	var baseUrl string
-	if isProd {
-		baseUrl = real_path
-	} else {
-		baseUrl = test_path
 	}
 
 	//Encode the data
 	postBody, _ := json.Marshal(request)
 
+	//Create the request
 	client := &http.Client{}
 	requestBody := bytes.NewBuffer(postBody)
-	username := authToken
-	req, err := http.NewRequest("POST", baseUrl+"payments", requestBody)
+	req, err := http.NewRequest("POST", base_url+"payments", requestBody)
 
+	if err != nil {
+		return Response{}, err
+	}
+
+	//Set the authentication token and call the api
+	req.SetBasicAuth(authToken, "")
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 		return Response{}, err
 	}
 
-	req.SetBasicAuth(username, "")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("An Error Occured %v", err)
-	}
 	defer resp.Body.Close()
 
+	// Read response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
 		return Response{}, err
 	}
+
+	// Decode json into Response struct
 	var jsonResponse Response
 	err = json.Unmarshal(body, &jsonResponse)
 

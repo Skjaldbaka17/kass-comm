@@ -85,3 +85,14 @@ func TestInitiatePaymentInvalidRecipient(t *testing.T) {
 		t.Errorf("Expected respones.Success == false but got response == %s", out)
 	}
 }
+
+//Expects an error
+func TestInitiatePaymentNoAuthToken(t *testing.T) {
+	SetDev()
+	SetAuthToken("")
+	_, err := InitiatePayment(&base_Request)
+
+	if err == nil {
+		t.Error("Expected err != nil but got err == nil")
+	}
+}
