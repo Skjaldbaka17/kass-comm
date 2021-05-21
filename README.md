@@ -12,7 +12,7 @@ import (
 "github.com/Skjaldbaka17/kasscomm"
 )
 
-var base_Request kasscomm.Request = kasscomm.Request{
+var base_request kasscomm.Request = kasscomm.Request{
     Amount:      2199,
     Description: "Kass bolur",
     Image_Url:   "https://photos.kassapi.is/kass/kass-bolur.jpg",
@@ -28,7 +28,7 @@ var my_auth_token string = "MY_AUTH_TOKEN"
 //kasscomm.SetDev() //for test env
 kasscomm.SetProd() //for real env
 kasscomm.SetAuthToken(my_auth_token)
-resp, err := kasscomm.InitiatePayment(&base_Request)
+resp, err := kasscomm.InitiatePayment(&base_request)
 
 if err != nil {
     log.Printf("Errors happen... %s\n", err)
